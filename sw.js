@@ -1,5 +1,5 @@
 /* Slip service worker: prefer network so Home Screen gets updates. */
-const VERSION = "2026.10.12.11";
+const VERSION = "2026.10.12.12";
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
