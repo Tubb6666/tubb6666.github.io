@@ -433,6 +433,17 @@ input.compact-input[type="date"]::-webkit-datetime-edit {
   background: var(--accent);
 }
 
+.chip.except.active {
+  background: var(--muted);
+  border-color: var(--muted);
+}
+
+.amount-except,
+.type-total.except {
+  color: var(--muted);
+  font-weight: 500;
+}
+
 .custom-category {
   display: grid;
   grid-template-columns: 1fr auto;

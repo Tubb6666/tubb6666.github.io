@@ -7,16 +7,22 @@ const DEFAULT_TYPES = [
   "Bills",
   "Entertainment",
   "Salary",
+  "Except",
   "Other",
 ];
 
 const INCOME_TYPES = new Set(["Salary"]);
+const EXCLUDED_TYPES = new Set(["Except"]);
 const STORAGE_KEY = "slip.web.expenses.v1";
 const CATEGORIES_KEY = "slip.web.categories.v1";
 const ESTABLISHMENTS_KEY = "slip.web.establishments.v1";
 
 function isIncome(type) {
   return INCOME_TYPES.has(type);
+}
+
+function isExcluded(type) {
+  return EXCLUDED_TYPES.has(type);
 }
 
 const money = new Intl.NumberFormat(undefined, {
@@ -261,6 +267,8 @@ function updateFormMode() {
     els.submitBtn.textContent = "Save changes";
   } else if (isIncome(state.type)) {
     els.submitBtn.textContent = "Add salary";
+  } else if (isExcluded(state.type)) {
+    els.submitBtn.textContent = "Add exception";
   } else {
     els.submitBtn.textContent = "Add expense";
   }
@@ -272,11 +280,16 @@ function updateFormMode() {
 function splitTotals(entries) {
   let spent = 0;
   let salary = 0;
+  let excepted = 0;
   for (const entry of entries) {
+    if (isExcluded(entry.type)) {
+      excepted += entry.amount;
+      continue;
+    }
     if (isIncome(entry.type)) salary += entry.amount;
     else spent += entry.amount;
   }
-  return { spent, salary, net: spent - salary };
+  return { spent, salary, excepted, net: spent - salary };
 }
 
 function renderTypePicker() {
@@ -284,7 +297,7 @@ function renderTypePicker() {
   for (const type of allTypes()) {
     const button = document.createElement("button");
     button.type = "button";
-    button.className = `chip${type === state.type ? " active" : ""}${isIncome(type) ? " income" : ""}`;
+    button.className = `chip${type === state.type ? " active" : ""}${isIncome(type) ? " income" : ""}${isExcluded(type) ? " except" : ""}`;
     button.textContent = type;
     button.setAttribute("role", "option");
     button.setAttribute("aria-selected", String(type === state.type));
@@ -437,20 +450,23 @@ function expenseRow(expense, { canEdit = false } = {}) {
   const row = document.createElement("article");
   row.className = "row";
   const income = isIncome(expense.type);
+  const excluded = isExcluded(expense.type);
   row.innerHTML = `
     <div class="row-main">
       <p class="row-name"></p>
       <p class="row-meta"></p>
     </div>
     <div class="row-right">
-      <p class="row-amount${income ? " amount-income" : ""}"></p>
+      <p class="row-amount${income ? " amount-income" : ""}${excluded ? " amount-except" : ""}"></p>
     </div>
   `;
   row.querySelector(".row-name").textContent = expense.establishment;
-  row.querySelector(".row-meta").textContent = `${expense.type} · ${shortDate.format(entryDate(expense))}`;
+  row.querySelector(".row-meta").textContent = `${expense.type} · ${shortDate.format(entryDate(expense))}${excluded ? " · not counted" : ""}`;
   row.querySelector(".row-amount").textContent = income
     ? `+${money.format(expense.amount)}`
-    : money.format(expense.amount);
+    : excluded
+      ? `(${money.format(expense.amount)})`
+      : money.format(expense.amount);
 
   if (canEdit) {
     const actions = document.createElement("div");
@@ -508,16 +524,21 @@ function renderConsolidate() {
     }),
   );
 
-  const { spent, salary, net } = splitTotals(filtered);
+  const { spent, salary, excepted, net } = splitTotals(filtered);
   els.rangeLabel.textContent = `${longDate.format(range.start)} – ${longDate.format(range.end)}`;
   els.rangeTotal.textContent = money.format(net);
   els.rangeSpent.textContent = `Spent ${money.format(spent)}`;
   els.rangeSalary.textContent = `Salary −${money.format(salary)}`;
   els.rangeSalary.classList.toggle("salary-line", salary > 0);
-  els.rangeCount.textContent = `${filtered.length} ${filtered.length === 1 ? "entry" : "entries"}`;
+  let countLine = `${filtered.length} ${filtered.length === 1 ? "entry" : "entries"}`;
+  if (excepted > 0) {
+    countLine += ` · Except ${money.format(excepted)} not counted`;
+  }
+  els.rangeCount.textContent = countLine;
 
   const byType = new Map();
   for (const expense of filtered) {
+    if (isExcluded(expense.type)) continue;
     const current = byType.get(expense.type) || { total: 0, count: 0 };
     current.total += expense.amount;
     current.count += 1;
