@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#F3F5F4" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Slip" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <title>Slip</title>
+    <link rel="manifest" href="manifest.json" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css?v=2026.10.12.5" />
+  </head>
+  <body>
+    <div class="atmosphere" aria-hidden="true"></div>
+    <div id="update-banner" class="update-banner hidden" role="status">
+      <span>A newer Slip is ready.</span>
+      <button type="button" id="reload-update" class="btn-inline">Update</button>
+    </div>
+
+    <main class="app">
+      <section id="home" class="screen">
+        <header class="hero">
+          <h1 class="brand">Slip</h1>
+          <p class="tagline">Log a spend. Amount, place, date, and type.</p>
+          <p id="app-version" class="version-line"></p>
+        </header>
+
+        <form id="expense-form" class="form" autocomplete="off">
+          <label class="field">
+            <span>Amount</span>
+            <input
+              id="amount"
+              name="amount"
+              inputmode="decimal"
+              placeholder="0.00"
+              required
+            />
+          </label>
+
+          <label class="field">
+            <span>Establishment</span>
+            <input
+              id="establishment"
+              name="establishment"
+              list="establishment-suggestions"
+              placeholder="Cafe Luna"
+              required
+            />
+            <datalist id="establishment-suggestions"></datalist>
+            <div id="establishment-chips" class="suggest-chips" aria-label="Recent establishments"></div>
+          </label>
+
+          <label class="field">
+            <span>Transaction date</span>
+            <input
+              id="txn-date"
+              class="compact-input"
+              name="txn-date"
+              type="date"
+              required
+            />
+          </label>
+
+          <div class="field">
+            <span>Type / category</span>
+            <div id="type-picker" class="type-picker" role="listbox" aria-label="Type"></div>
+            <div class="custom-category">
+              <input
+                id="custom-category"
+                class="compact-input"
+                type="text"
+                placeholder="Add custom category"
+                maxlength="32"
+                autocomplete="off"
+              />
+              <button type="button" id="add-category" class="btn-inline">Add</button>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="submit-btn" class="btn primary">Add expense</button>
+            <button type="button" id="cancel-edit" class="btn ghost hidden">Cancel edit</button>
+          </div>
+        </form>
+
+        <button type="button" id="open-consolidate" class="btn secondary">
+          Consolidate
+        </button>
+
+        <section class="data-tools">
+          <h2 class="block-title">Your data</h2>
+          <p class="data-note">
+            Transactions live on this phone. Before deleting the Home Screen icon
+            or changing the Slip web address, export a backup.
+          </p>
+          <div class="data-actions">
+            <button type="button" id="export-data" class="btn secondary">
+              Export backup
+            </button>
+            <label class="btn secondary file-btn">
+              Import backup
+              <input id="import-data" type="file" accept="application/json,.json" hidden />
+            </label>
+          </div>
+        </section>
+
+        <section class="recent">
+          <div class="section-head">
+            <h2>Recent</h2>
+            <p id="all-time" class="section-meta"></p>
+          </div>
+          <div id="expense-list" class="list"></div>
+          <p id="empty-state" class="empty">No expenses yet. Add your first slip above.</p>
+        </section>
+      </section>
+
+      <section id="consolidate" class="screen hidden">
+        <header class="subhead">
+          <button type="button" id="back-home" class="back">← Back</button>
+          <h2>Consolidate</h2>
+          <p class="intro">
+            See what you spent by week, month, or any dates you choose.
+          </p>
+        </header>
+
+        <div class="modes" role="tablist" aria-label="Date range">
+          <button type="button" class="mode active" data-mode="week">Week</button>
+          <button type="button" class="mode" data-mode="month">Month</button>
+          <button type="button" class="mode" data-mode="custom">Custom</button>
+        </div>
+
+        <div id="custom-range" class="custom hidden">
+          <label class="field">
+            <span>From</span>
+            <input id="from-date" type="date" />
+          </label>
+          <label class="field">
+            <span>To</span>
+            <input id="to-date" type="date" />
+          </label>
+        </div>
+
+        <div class="summary">
+          <p id="range-label" class="range"></p>
+          <p class="net-label">Net after salary</p>
+          <p id="range-total" class="total">$0.00</p>
+          <div class="summary-breakdown">
+            <p id="range-spent">Spent $0.00</p>
+            <p id="range-salary">Salary −$0.00</p>
+          </div>
+          <p id="range-count" class="count">0 entries</p>
+        </div>
+
+        <section>
+          <h3 class="block-title">By type</h3>
+          <div id="type-totals" class="type-totals"></div>
+        </section>
+
+        <section>
+          <h3 class="block-title">Entries</h3>
+          <div id="range-list" class="list"></div>
+          <p id="range-empty" class="empty hidden">Nothing in this range.</p>
+        </section>
+      </section>
+    </main>
+
+    <script src="version.js?v=2026.10.12.5"></script>
+    <script src="app.js?v=2026.10.12.5"></script>
+  </body>
+</html>
