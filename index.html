@@ -20,7 +20,7 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=2026.10.12.10" />
+    <link rel="stylesheet" href="styles.css?v=2026.10.12.11" />
   </head>
   <body>
     <div class="atmosphere" aria-hidden="true"></div>
@@ -131,16 +131,26 @@
           </div>
           <label class="field search-field">
             <span>Search</span>
-            <input
-              id="recent-search"
-              class="compact-input"
-              type="search"
-              enterkeyhint="search"
-              placeholder="Search place, category, amount, date"
-              autocomplete="off"
-              autocorrect="off"
-              spellcheck="false"
-            />
+            <div class="search-wrap">
+              <input
+                id="recent-search"
+                class="compact-input"
+                type="search"
+                enterkeyhint="search"
+                placeholder="Search place, category, amount, date"
+                autocomplete="off"
+                autocorrect="off"
+                spellcheck="false"
+              />
+              <button
+                type="button"
+                id="clear-recent-search"
+                class="search-clear hidden"
+                aria-label="Clear search"
+              >
+                ×
+              </button>
+            </div>
           </label>
           <div id="expense-list" class="list"></div>
           <p id="empty-state" class="empty">No expenses yet. Add your first slip above.</p>
@@ -228,7 +238,7 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
-    <script src="version.js?v=2026.10.12.10"></script>
-    <script src="app.js?v=2026.10.12.10"></script>
+    <script src="version.js?v=2026.10.12.11"></script>
+    <script src="app.js?v=2026.10.12.11"></script>
   </body>
 </html>

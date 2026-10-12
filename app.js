@@ -109,6 +109,7 @@ const els = {
   empty: document.getElementById("empty-state"),
   allTime: document.getElementById("all-time"),
   recentSearch: document.getElementById("recent-search"),
+  clearRecentSearch: document.getElementById("clear-recent-search"),
   openConsolidate: document.getElementById("open-consolidate"),
   backHome: document.getElementById("back-home"),
   dlByType: document.getElementById("dl-by-type"),
