@@ -20,7 +20,7 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=2026.10.12.8" />
+    <link rel="stylesheet" href="styles.css?v=2026.10.12.9" />
   </head>
   <body>
     <div class="atmosphere" aria-hidden="true"></div>
@@ -129,6 +129,19 @@
             <h2>Recent</h2>
             <p id="all-time" class="section-meta"></p>
           </div>
+          <label class="field search-field">
+            <span>Search</span>
+            <input
+              id="recent-search"
+              class="compact-input"
+              type="search"
+              enterkeyhint="search"
+              placeholder="Search place, category, amount, date"
+              autocomplete="off"
+              autocorrect="off"
+              spellcheck="false"
+            />
+          </label>
           <div id="expense-list" class="list"></div>
           <p id="empty-state" class="empty">No expenses yet. Add your first slip above.</p>
         </section>
@@ -172,7 +185,7 @@
         </div>
 
         <section>
-          <h3 class="block-title">By type</h3>
+          <h3 class="block-title">By category</h3>
           <div id="type-totals" class="type-totals"></div>
         </section>
 
@@ -181,10 +194,41 @@
           <div id="range-list" class="list"></div>
           <p id="range-empty" class="empty hidden">Nothing in this range.</p>
         </section>
+
+        <section class="download-tools">
+          <h3 class="block-title">Download</h3>
+          <p class="data-note">
+            Download this consolidated view as a table for Excel, Word, or PDF.
+          </p>
+          <div class="download-options">
+            <label class="check">
+              <input id="dl-by-type" type="checkbox" checked />
+              <span>By category</span>
+            </label>
+            <label class="check">
+              <input id="dl-entries" type="checkbox" checked />
+              <span>Entries</span>
+            </label>
+          </div>
+          <div class="data-actions">
+            <button type="button" id="download-excel" class="btn secondary">
+              Download Excel
+            </button>
+            <button type="button" id="download-word" class="btn secondary">
+              Download Word
+            </button>
+            <button type="button" id="download-pdf" class="btn secondary">
+              Download PDF
+            </button>
+          </div>
+        </section>
       </section>
     </main>
 
-    <script src="version.js?v=2026.10.12.8"></script>
-    <script src="app.js?v=2026.10.12.8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
+    <script src="version.js?v=2026.10.12.9"></script>
+    <script src="app.js?v=2026.10.12.9"></script>
   </body>
 </html>

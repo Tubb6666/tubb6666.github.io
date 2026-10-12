@@ -90,6 +90,8 @@ const state = {
   type: "Restaurant",
   mode: "week",
   editingId: null,
+  searchQuery: "",
+  consolidateSnapshot: null,
 };
 
 const els = {
@@ -106,8 +108,14 @@ const els = {
   list: document.getElementById("expense-list"),
   empty: document.getElementById("empty-state"),
   allTime: document.getElementById("all-time"),
+  recentSearch: document.getElementById("recent-search"),
   openConsolidate: document.getElementById("open-consolidate"),
   backHome: document.getElementById("back-home"),
+  dlByType: document.getElementById("dl-by-type"),
+  dlEntries: document.getElementById("dl-entries"),
+  downloadExcel: document.getElementById("download-excel"),
+  downloadWord: document.getElementById("download-word"),
+  downloadPdf: document.getElementById("download-pdf"),
   modes: document.querySelectorAll(".mode"),
   customRange: document.getElementById("custom-range"),
   fromDate: document.getElementById("from-date"),
@@ -498,18 +506,44 @@ function expenseRow(expense, { canEdit = false } = {}) {
   return row;
 }
 
+function matchesSearch(expense, query) {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+  const haystack = [
+    expense.establishment,
+    expense.type,
+    String(expense.amount),
+    money.format(expense.amount),
+    expense.date,
+    shortDate.format(entryDate(expense)),
+    longDate.format(entryDate(expense)),
+  ]
+    .join(" ")
+    .toLowerCase();
+  return haystack.includes(q);
+}
+
 function renderHome() {
   els.list.innerHTML = "";
   const sorted = sortEntries(state.expenses);
+  const visible = sorted.filter((expense) =>
+    matchesSearch(expense, state.searchQuery),
+  );
 
   if (sorted.length === 0) {
     els.empty.classList.remove("hidden");
+    els.empty.textContent = "No expenses yet. Add your first slip above.";
     els.allTime.textContent = "";
+  } else if (visible.length === 0) {
+    els.empty.classList.remove("hidden");
+    els.empty.textContent = "No transactions match your search.";
+    const { net } = splitTotals(sorted);
+    els.allTime.textContent = `${money.format(net)} net`;
   } else {
     els.empty.classList.add("hidden");
     const { net } = splitTotals(sorted);
     els.allTime.textContent = `${money.format(net)} net`;
-    for (const expense of sorted) {
+    for (const expense of visible) {
       els.list.appendChild(expenseRow(expense, { canEdit: true }));
     }
   }
@@ -575,6 +609,252 @@ function renderConsolidate() {
       els.rangeList.appendChild(expenseRow(expense, { canEdit: true }));
     }
   }
+
+  state.consolidateSnapshot = {
+    rangeLabel: formatRangeLabelText(range),
+    spent,
+    salary,
+    excepted,
+    net,
+    byCategory: rows.map(([type, info]) => ({
+      category: type,
+      entries: info.count,
+      total: info.total,
+      income: isIncome(type),
+    })),
+    entries: filtered.map((expense) => ({
+      date: expense.date,
+      establishment: expense.establishment,
+      category: expense.type,
+      amount: expense.amount,
+      excluded: isExcluded(expense.type),
+      income: isIncome(expense.type),
+    })),
+  };
+}
+
+function formatRangeLabelText(range) {
+  return `${longDate.format(range.start)} – ${longDate.format(range.end)}`;
+}
+
+function selectedDownloadSections() {
+  const byCategory = Boolean(els.dlByType?.checked);
+  const entries = Boolean(els.dlEntries?.checked);
+  if (!byCategory && !entries) {
+    alert("Choose at least one: By category and/or Entries.");
+    return null;
+  }
+  return { byCategory, entries };
+}
+
+function getConsolidateSnapshot() {
+  if (!state.consolidateSnapshot) renderConsolidate();
+  return state.consolidateSnapshot;
+}
+
+function downloadBlob(filename, blob) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function stampName(ext) {
+  return `slip-consolidate-${toInputDate(new Date())}.${ext}`;
+}
+
+function downloadExcel() {
+  const sections = selectedDownloadSections();
+  if (!sections) return;
+  if (typeof XLSX === "undefined") {
+    alert("Excel export is still loading. Try again in a moment.");
+    return;
+  }
+  const snap = getConsolidateSnapshot();
+  const workbook = XLSX.utils.book_new();
+
+  const summaryRows = [
+    ["Slip consolidate"],
+    ["Range", snap.rangeLabel],
+    ["Net after salary", snap.net],
+    ["Spent", snap.spent],
+    ["Salary", snap.salary],
+    ["Except (not counted)", snap.excepted],
+  ];
+  XLSX.utils.book_append_sheet(
+    workbook,
+    XLSX.utils.aoa_to_sheet(summaryRows),
+    "Summary",
+  );
+
+  if (sections.byCategory) {
+    const rows = [
+      ["Category", "Entries", "Total"],
+      ...snap.byCategory.map((row) => [
+        row.category,
+        row.entries,
+        row.income ? -row.total : row.total,
+      ]),
+    ];
+    XLSX.utils.book_append_sheet(
+      workbook,
+      XLSX.utils.aoa_to_sheet(rows),
+      "By category",
+    );
+  }
+
+  if (sections.entries) {
+    const sheetRows = [
+      ["Date", "Establishment", "Category", "Amount", "Counted in net"],
+      ...snap.entries.map((row) => [
+        row.date,
+        row.establishment,
+        row.category,
+        row.amount,
+        row.excluded ? "No" : row.income ? "Salary" : "Yes",
+      ]),
+    ];
+    XLSX.utils.book_append_sheet(
+      workbook,
+      XLSX.utils.aoa_to_sheet(sheetRows),
+      "Entries",
+    );
+  }
+
+  XLSX.writeFile(workbook, stampName("xlsx"));
+}
+
+function buildWordHtml(sections, snap) {
+  const tableStyle =
+    "border-collapse:collapse;width:100%;font-family:Arial,sans-serif;font-size:12pt;";
+  const cell = "border:1px solid #333;padding:6px;text-align:left;";
+  const th = `${cell}background:#e8eee9;`;
+
+  let body = `
+    <h1>Slip consolidate</h1>
+    <p><strong>Range:</strong> ${snap.rangeLabel}</p>
+    <p><strong>Net after salary:</strong> ${money.format(snap.net)}</p>
+    <p><strong>Spent:</strong> ${money.format(snap.spent)} ·
+       <strong>Salary:</strong> ${money.format(snap.salary)} ·
+       <strong>Except:</strong> ${money.format(snap.excepted)}</p>
+  `;
+
+  if (sections.byCategory) {
+    body += `<h2>By category</h2><table style="${tableStyle}"><thead><tr>
+      <th style="${th}">Category</th><th style="${th}">Entries</th><th style="${th}">Total</th>
+    </tr></thead><tbody>`;
+    for (const row of snap.byCategory) {
+      body += `<tr>
+        <td style="${cell}">${escapeHtml(row.category)}</td>
+        <td style="${cell}">${row.entries}</td>
+        <td style="${cell}">${row.income ? "−" : ""}${money.format(row.total)}</td>
+      </tr>`;
+    }
+    body += `</tbody></table>`;
+  }
+
+  if (sections.entries) {
+    body += `<h2>Entries</h2><table style="${tableStyle}"><thead><tr>
+      <th style="${th}">Date</th><th style="${th}">Establishment</th>
+      <th style="${th}">Category</th><th style="${th}">Amount</th>
+      <th style="${th}">Counted in net</th>
+    </tr></thead><tbody>`;
+    for (const row of snap.entries) {
+      body += `<tr>
+        <td style="${cell}">${escapeHtml(row.date)}</td>
+        <td style="${cell}">${escapeHtml(row.establishment)}</td>
+        <td style="${cell}">${escapeHtml(row.category)}</td>
+        <td style="${cell}">${row.income ? "+" : ""}${money.format(row.amount)}</td>
+        <td style="${cell}">${row.excluded ? "No" : row.income ? "Salary" : "Yes"}</td>
+      </tr>`;
+    }
+    body += `</tbody></table>`;
+  }
+
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Slip consolidate</title></head><body>${body}</body></html>`;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function downloadWord() {
+  const sections = selectedDownloadSections();
+  if (!sections) return;
+  const snap = getConsolidateSnapshot();
+  const html = buildWordHtml(sections, snap);
+  downloadBlob(
+    stampName("doc"),
+    new Blob(["\ufeff", html], { type: "application/msword" }),
+  );
+}
+
+function downloadPdf() {
+  const sections = selectedDownloadSections();
+  if (!sections) return;
+  const jsPdfNS = window.jspdf;
+  if (!jsPdfNS?.jsPDF) {
+    alert("PDF export is still loading. Try again in a moment.");
+    return;
+  }
+  const snap = getConsolidateSnapshot();
+  const doc = new jsPdfNS.jsPDF({ orientation: "portrait", unit: "pt", format: "a4" });
+  let y = 40;
+  doc.setFontSize(16);
+  doc.text("Slip consolidate", 40, y);
+  y += 22;
+  doc.setFontSize(11);
+  doc.text(`Range: ${snap.rangeLabel}`, 40, y);
+  y += 16;
+  doc.text(`Net after salary: ${money.format(snap.net)}`, 40, y);
+  y += 14;
+  doc.text(
+    `Spent: ${money.format(snap.spent)}   Salary: ${money.format(snap.salary)}   Except: ${money.format(snap.excepted)}`,
+    40,
+    y,
+  );
+  y += 18;
+
+  if (sections.byCategory) {
+    doc.autoTable({
+      startY: y,
+      head: [["Category", "Entries", "Total"]],
+      body: snap.byCategory.map((row) => [
+        row.category,
+        String(row.entries),
+        `${row.income ? "−" : ""}${money.format(row.total)}`,
+      ]),
+      styles: { fontSize: 10, cellPadding: 4 },
+      headStyles: { fillColor: [15, 92, 76] },
+    });
+    y = doc.lastAutoTable.finalY + 18;
+  }
+
+  if (sections.entries) {
+    doc.autoTable({
+      startY: y,
+      head: [["Date", "Establishment", "Category", "Amount", "Counted"]],
+      body: snap.entries.map((row) => [
+        row.date,
+        row.establishment,
+        row.category,
+        `${row.income ? "+" : ""}${money.format(row.amount)}`,
+        row.excluded ? "No" : row.income ? "Salary" : "Yes",
+      ]),
+      styles: { fontSize: 9, cellPadding: 3 },
+      headStyles: { fillColor: [15, 92, 76] },
+    });
+  }
+
+  doc.save(stampName("pdf"));
 }
 
 function showHome() {

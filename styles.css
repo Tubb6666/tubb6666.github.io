@@ -79,6 +79,36 @@ input {
   gap: 8px;
 }
 
+.search-field {
+  margin-top: 2px;
+}
+
+.download-tools {
+  display: grid;
+  gap: 10px;
+  padding-top: 8px;
+}
+
+.download-options {
+  display: grid;
+  gap: 8px;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+
+.check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
 .file-btn {
   display: flex;
   align-items: center;
