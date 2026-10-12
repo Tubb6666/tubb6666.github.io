@@ -298,6 +298,32 @@ function renderTypePicker() {
   updateFormMode();
 }
 
+function categoryForEstablishment(name) {
+  const needle = name.trim().toLowerCase();
+  if (!needle) return null;
+  const matches = sortEntries(state.expenses).filter(
+    (expense) => (expense.establishment || "").trim().toLowerCase() === needle,
+  );
+  return matches[0]?.type || null;
+}
+
+function applyCategoryForEstablishment(name, { force = false } = {}) {
+  const category = categoryForEstablishment(name);
+  if (!category) return false;
+  if (!force && state.editingId) return false;
+  if (!allTypes().includes(category)) {
+    state.customCategories.push(category);
+    saveCategories();
+  }
+  if (state.type === category) {
+    updateFormMode();
+    return true;
+  }
+  state.type = category;
+  renderTypePicker();
+  return true;
+}
+
 function renderEstablishmentSuggestions() {
   els.establishmentList.innerHTML = "";
   els.establishmentChips.innerHTML = "";
@@ -313,6 +339,7 @@ function renderEstablishmentSuggestions() {
     chip.textContent = name;
     chip.addEventListener("click", () => {
       els.establishment.value = name;
+      applyCategoryForEstablishment(name, { force: true });
       els.establishment.focus();
     });
     els.establishmentChips.appendChild(chip);
@@ -546,6 +573,13 @@ els.form.addEventListener("submit", (event) => {
 
 els.cancelEdit.addEventListener("click", () => {
   resetForm();
+});
+
+els.establishment.addEventListener("change", () => {
+  applyCategoryForEstablishment(els.establishment.value, { force: true });
+});
+els.establishment.addEventListener("blur", () => {
+  applyCategoryForEstablishment(els.establishment.value, { force: true });
 });
 
 els.addCategory.addEventListener("click", addCustomCategory);
