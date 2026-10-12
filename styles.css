@@ -36,11 +36,6 @@ input {
   font: inherit;
 }
 
-/* Keep fields above the iPhone keyboard */
-.app {
-  padding-bottom: calc(40px + env(safe-area-inset-bottom) + var(--keyboard-gap, 0px));
-}
-
 .update-banner {
   position: sticky;
   top: 0;
@@ -107,7 +102,8 @@ input {
   z-index: 1;
   width: min(480px, 100%);
   margin: 0 auto;
-  padding: 28px 20px calc(40px + env(safe-area-inset-bottom));
+  padding: 28px 20px
+    calc(40px + env(safe-area-inset-bottom) + var(--keyboard-gap, 0px));
 }
 
 .screen {
