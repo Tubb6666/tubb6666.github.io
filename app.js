@@ -92,7 +92,6 @@ const els = {
   form: document.getElementById("expense-form"),
   amount: document.getElementById("amount"),
   establishment: document.getElementById("establishment"),
-  establishmentList: document.getElementById("establishment-suggestions"),
   establishmentChips: document.getElementById("establishment-chips"),
   txnDate: document.getElementById("txn-date"),
   typePicker: document.getElementById("type-picker"),
@@ -325,13 +324,7 @@ function applyCategoryForEstablishment(name, { force = false } = {}) {
 }
 
 function renderEstablishmentSuggestions() {
-  els.establishmentList.innerHTML = "";
   els.establishmentChips.innerHTML = "";
-  for (const name of state.establishments) {
-    const option = document.createElement("option");
-    option.value = name;
-    els.establishmentList.appendChild(option);
-  }
   for (const name of state.establishments.slice(0, 8)) {
     const chip = document.createElement("button");
     chip.type = "button";
@@ -340,9 +333,50 @@ function renderEstablishmentSuggestions() {
     chip.addEventListener("click", () => {
       els.establishment.value = name;
       applyCategoryForEstablishment(name, { force: true });
-      els.establishment.focus();
+      // Don't force-focus here — iOS often hides the keyboard after chip taps.
     });
     els.establishmentChips.appendChild(chip);
+  }
+}
+
+function keepFieldAboveKeyboard(input) {
+  if (!input) return;
+  requestAnimationFrame(() => {
+    input.scrollIntoView({ block: "center", inline: "nearest", behavior: "smooth" });
+  });
+}
+
+function setupKeyboardGuards() {
+  const fields = [els.amount, els.establishment, els.customCategory].filter(Boolean);
+  for (const input of fields) {
+    input.addEventListener("focus", () => keepFieldAboveKeyboard(input));
+  }
+
+  // Amount -> Establishment without dismissing keyboard awkwardly
+  els.amount?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      els.establishment?.focus();
+    }
+  });
+
+  if (window.visualViewport) {
+    const syncKeyboardGap = () => {
+      const gap = Math.max(
+        0,
+        window.innerHeight - window.visualViewport.height - window.visualViewport.offsetTop,
+      );
+      document.documentElement.style.setProperty(
+        "--keyboard-gap",
+        `${Math.round(gap)}px`,
+      );
+      const active = document.activeElement;
+      if (active && fields.includes(active)) {
+        keepFieldAboveKeyboard(active);
+      }
+    };
+    window.visualViewport.addEventListener("resize", syncKeyboardGap);
+    window.visualViewport.addEventListener("scroll", syncKeyboardGap);
   }
 }
 
@@ -568,7 +602,8 @@ els.form.addEventListener("submit", (event) => {
   resetForm();
   renderHome();
   renderConsolidate();
-  els.amount.focus();
+  // Avoid programmatic focus after save — iOS Home Screen apps often fail to
+  // show the keyboard for non-gesture focus, which then breaks later taps.
 });
 
 els.cancelEdit.addEventListener("click", () => {
@@ -579,7 +614,11 @@ els.establishment.addEventListener("change", () => {
   applyCategoryForEstablishment(els.establishment.value, { force: true });
 });
 els.establishment.addEventListener("blur", () => {
-  applyCategoryForEstablishment(els.establishment.value, { force: true });
+  // Defer so we don't rebuild chips/DOM in the middle of the focus change
+  // to another field (a common iOS keyboard-dismiss bug).
+  setTimeout(() => {
+    applyCategoryForEstablishment(els.establishment.value, { force: true });
+  }, 0);
 });
 
 els.addCategory.addEventListener("click", addCustomCategory);
@@ -725,4 +764,5 @@ renderEstablishmentSuggestions();
 renderTypePicker();
 renderHome();
 updateFormMode();
+setupKeyboardGuards();
 registerServiceWorker();
