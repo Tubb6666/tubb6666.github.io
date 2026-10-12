@@ -936,15 +936,32 @@ els.customCategory.addEventListener("keydown", (event) => {
   }
 });
 
+function syncSearchClearButton() {
+  const hasQuery = Boolean(els.recentSearch?.value?.trim());
+  els.clearRecentSearch?.classList.toggle("hidden", !hasQuery);
+}
+
 function applyRecentSearch() {
   state.searchQuery = els.recentSearch?.value || "";
+  syncSearchClearButton();
   renderHome();
+}
+
+function clearRecentSearch() {
+  if (!els.recentSearch) return;
+  els.recentSearch.value = "";
+  applyRecentSearch();
 }
 
 els.recentSearch?.addEventListener("input", applyRecentSearch);
 els.recentSearch?.addEventListener("search", applyRecentSearch);
 els.recentSearch?.addEventListener("keyup", applyRecentSearch);
 els.recentSearch?.addEventListener("change", applyRecentSearch);
+els.clearRecentSearch?.addEventListener("click", (event) => {
+  event.preventDefault();
+  clearRecentSearch();
+});
+syncSearchClearButton();
 
 els.downloadExcel?.addEventListener("click", downloadExcel);
 els.downloadWord?.addEventListener("click", downloadWord);
