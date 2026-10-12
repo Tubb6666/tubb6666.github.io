@@ -368,7 +368,12 @@ function keepFieldAboveKeyboard(input) {
 }
 
 function setupKeyboardGuards() {
-  const fields = [els.amount, els.establishment, els.customCategory].filter(Boolean);
+  const fields = [
+    els.amount,
+    els.establishment,
+    els.customCategory,
+    els.recentSearch,
+  ].filter(Boolean);
   for (const input of fields) {
     input.addEventListener("focus", () => keepFieldAboveKeyboard(input));
   }
@@ -929,6 +934,20 @@ els.customCategory.addEventListener("keydown", (event) => {
     addCustomCategory();
   }
 });
+
+function applyRecentSearch() {
+  state.searchQuery = els.recentSearch?.value || "";
+  renderHome();
+}
+
+els.recentSearch?.addEventListener("input", applyRecentSearch);
+els.recentSearch?.addEventListener("search", applyRecentSearch);
+els.recentSearch?.addEventListener("keyup", applyRecentSearch);
+els.recentSearch?.addEventListener("change", applyRecentSearch);
+
+els.downloadExcel?.addEventListener("click", downloadExcel);
+els.downloadWord?.addEventListener("click", downloadWord);
+els.downloadPdf?.addEventListener("click", downloadPdf);
 
 els.openConsolidate.addEventListener("click", showConsolidate);
 els.backHome.addEventListener("click", showHome);
